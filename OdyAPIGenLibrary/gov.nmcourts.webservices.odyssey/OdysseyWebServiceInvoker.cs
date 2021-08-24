@@ -25,14 +25,15 @@ using System.IO;
 using System.Xml;
 using gov.nmcourts.webservices.exception;
 using gov.nmcourts.webservices.util;
+using generated.com.tylertech.custom.xsdbindings.errorstream;
 
 namespace gov.nmcourts.webservices.odyssey
 {
     public class OdysseyWebServiceInvoker
     {
-        public static String ERROR_COULD_NOT_MARSHAL_XML       = "Unable to marshall request object to XML";
-        public static String ERROR_COULD_NOT_UNMARSHAL_XML     = "Unable to unmarshall reply XML to object";	    
-	    public static String ERROR_COULD_NOT_GET_API_WEB_STUB  = "Could not get api web service stub";        
+        public static String ERROR_COULD_NOT_MARSHAL_XML = "Unable to marshall request object to XML";
+        public static String ERROR_COULD_NOT_UNMARSHAL_XML = "Unable to unmarshall reply XML to object";
+        public static String ERROR_COULD_NOT_GET_API_WEB_STUB = "Could not get api web service stub";
 
         private static APIWebService apiWebServiceStub;
         private String endpointAPIWebService;
@@ -46,7 +47,7 @@ namespace gov.nmcourts.webservices.odyssey
             Console.WriteLine("Tyler siteId is: " + siteId);
         }
 
-        private void InitApiWebService() 
+        private void InitApiWebService()
         {
             try
             {
@@ -55,11 +56,12 @@ namespace gov.nmcourts.webservices.odyssey
                     Uri wsdlLocation = new Uri(endpointAPIWebService);
                     apiWebServiceStub = new APIWebService(wsdlLocation);
                 }
-            } catch (OdysseyWebServiceException e)
+            }
+            catch (OdysseyWebServiceException e)
             {
                 Console.WriteLine(e.StackTrace);
             }
-	    }
+        }
 
         private APIWebService GetApiWebServiceStub()
         {
@@ -69,7 +71,8 @@ namespace gov.nmcourts.webservices.odyssey
                 {
                     InitApiWebService();
                 }
-            } catch (OdysseyWebServiceException e)
+            }
+            catch (OdysseyWebServiceException e)
             {
                 Console.WriteLine(e.StackTrace);
             }
@@ -90,15 +93,17 @@ namespace gov.nmcourts.webservices.odyssey
         }
 
         public object Invoker(Object message, String expectedReplyName, Type expectedReplyClass)
-        { 
+        {
             String requestXML = null;
-		    try
+            try
             {
                 requestXML = XmlMarshallingUtil.MarshallRequest(message);
                 // For debugging
                 //Console.WriteLine("XML for request is: \n" + requestXML);
-            } catch (Exception e) {
-			    throw new OdysseyWebServiceException(ERROR_COULD_NOT_MARSHAL_XML, e);
+            }
+            catch (Exception e)
+            {
+                throw new OdysseyWebServiceException(ERROR_COULD_NOT_MARSHAL_XML, e);
             }
 
             String rawResultXml = GetApiWebServiceStub().OdysseyMsgExecution(requestXML, siteId);
@@ -115,12 +120,18 @@ namespace gov.nmcourts.webservices.odyssey
             //Console.WriteLine(replyXML);
 
             object unmarshal = null;
-            try {
-			    unmarshal = XmlMarshallingUtil.UnmarshallResponse(replyXML, expectedReplyClass);
-		    } catch (Exception e) {
-			    throw new OdysseyWebServiceException(ERROR_COULD_NOT_UNMARSHAL_XML, e);
-		    } 
-		    return unmarshal;
-	    }
+
+            if (replyXML.Contains("<ERRORSTREAM>")) expectedReplyClass = typeof(ERRORSTREAM);
+
+            try
+            {
+                unmarshal = XmlMarshallingUtil.UnmarshallResponse(replyXML, expectedReplyClass);
+            }
+            catch (Exception e)
+            {
+                throw new OdysseyWebServiceException(ERROR_COULD_NOT_UNMARSHAL_XML, e);
+            }
+            return unmarshal;
+        }
     }
 }
