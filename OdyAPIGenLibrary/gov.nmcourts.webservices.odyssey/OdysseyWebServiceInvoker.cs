@@ -34,6 +34,7 @@ namespace gov.nmcourts.webservices.odyssey
         public static String ERROR_COULD_NOT_MARSHAL_XML = "Unable to marshall request object to XML";
         public static String ERROR_COULD_NOT_UNMARSHAL_XML = "Unable to unmarshall reply XML to object";
         public static String ERROR_COULD_NOT_GET_API_WEB_STUB = "Could not get api web service stub";
+        public static String ERROR_API_RETURNED_ERROR = "The Odyssey API returned an error";
 
         private static APIWebService apiWebServiceStub;
         private String endpointAPIWebService;
@@ -121,14 +122,27 @@ namespace gov.nmcourts.webservices.odyssey
 
             object unmarshal = null;
 
-            if (replyXML.Contains("<ERRORSTREAM>")) expectedReplyClass = typeof(ERRORSTREAM);
-
             try
             {
                 unmarshal = XmlMarshallingUtil.UnmarshallResponse(replyXML, expectedReplyClass);
             }
+            catch (System.InvalidOperationException ioe)
+            {
+                try
+                {
+                    ERRORSTREAM unmarshaledError = XmlMarshallingUtil.UnmarshallResponse(replyXML, typeof(ERRORSTREAM));
+                    throw new OdysseyWebServiceException(unmarshaledError, ERROR_API_RETURNED_ERROR, ioe);
+                }
+                catch (Exception e)
+                {
+
+                    throw new OdysseyWebServiceException(ERROR_COULD_NOT_UNMARSHAL_XML, e);
+                }
+                
+            }
             catch (Exception e)
             {
+
                 throw new OdysseyWebServiceException(ERROR_COULD_NOT_UNMARSHAL_XML, e);
             }
             return unmarshal;
