@@ -19,7 +19,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ***************************************/
-using generated.com.tylertech.custom.xsdbindings.errorstream;
+using generated.com.tylertech.xsdbindings.errorstream;
 using System;
 
 namespace gov.nmcourts.webservices.exception
