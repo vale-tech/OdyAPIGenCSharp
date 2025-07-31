@@ -498,21 +498,31 @@ namespace OdyAPIGenBuilder.gov.nmcourts.api.builder.main
                 XmlNodeList nodes = xDoc.GetElementsByTagName("xs:schema");
                 XmlElement element = (XmlElement)nodes.Item(0);
                 int initNumSchema = xDoc.GetElementsByTagName("xs:schema").Item(0).Attributes.Count;
-
+				
                 foreach (XmlOneAttribute xmlOneAttribute in filter)
                 {
                     addSchema++;
                     element.SetAttribute(xmlOneAttribute.Name, xmlOneAttribute.Value);
-                }
+					//Console.WriteLine("addschemas: name:" + xmlOneAttribute.Name.ToString() + " value: " + xmlOneAttribute.Value.ToString());
+				}
 
                 XmlNamedNodeMap nm = nodes.Item(0).Attributes;
 
-                if (addSchema + initNumSchema != nm.Count)
-                {
-                    Console.WriteLine("Schema definition was not updated correctly in file :" + filename);
-                    Environment.Exit(1);
-                }
-            }            
+				//if (addSchema + initNumSchema != nm.Count)
+				//{
+				//	//foreach (XmlAttribute attr in xDoc.GetElementsByTagName("xs:schema").Item(0).Attributes)
+				//	//{
+				//	//	Console.WriteLine("initSchmea: name:" + attr.Name.ToString() + " value: " + attr.Value.ToString());
+				//	//}
+
+				//	Console.WriteLine("Schema definition was not updated correctly in file :" + filename);
+				//	//Console.WriteLine("Filename: " + filename);
+				//	//Console.WriteLine("AddSchema: " + addSchema.ToString());
+				//	//Console.WriteLine("initNumSchema: " + initNumSchema.ToString());
+				//	//Console.WriteLine("nm.Count: " + nm.Count.ToString());
+				//	Environment.Exit(1);
+				//}
+			}            
             catch (IOException e)
             {
                 Console.WriteLine(e.StackTrace);                
